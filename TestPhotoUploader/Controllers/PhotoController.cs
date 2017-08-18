@@ -50,7 +50,7 @@ namespace TestPhotoUploader.Controllers
                 }
             }
 
-            return RedirectToAction(nameof(Index), routeValues:message);
+            return View(nameof(Index), model: message);
         }
 
         private string GetTodayFolder() => DateTime.Today.ToString("dd-MM-yyyy");
