@@ -3,6 +3,7 @@ using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace TestPhotoUploader.Controllers
         private CloudBlobClient _blobClient = null;
         private VisionServiceClient _visionClient = null;
         private CloudTableClient _tableClient = null;
+        private CloudQueueClient _queueClient = null;
 
         public PhotoController()
         {
@@ -26,6 +28,7 @@ namespace TestPhotoUploader.Controllers
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             _blobClient = storageAccount.CreateCloudBlobClient();
             _tableClient = storageAccount.CreateCloudTableClient();
+            _queueClient = storageAccount.CreateCloudQueueClient();
 
             string visionAPIKey = CloudConfigurationManager.GetSetting("VisionAPIKey");
             _visionClient = new VisionServiceClient(visionAPIKey, "https://westeurope.api.cognitive.microsoft.com/vision/v1.0");
@@ -53,10 +56,12 @@ namespace TestPhotoUploader.Controllers
                         await Task.WhenAll(blobTask, analysisTask);
 
                         var result = analysisTask.Result;
-                        //TODO: Implement ToString and saving results. Add a separate model
+                       
                         model = new PhotoAnalysisResult(result, blobTask.Result);
 
                         SaveData(model);
+
+                        SendMessage(model);
                     }
                 }
                 catch (Exception ex)
@@ -72,6 +77,17 @@ namespace TestPhotoUploader.Controllers
             return View(nameof(Index), model);
         }
 
+        //TODO: Move it to separate service
+        private void SendMessage(PhotoAnalysisResult model)
+        {
+            CloudQueue queue = _queueClient.GetQueueReference("testqueueu");
+            queue.CreateIfNotExists();
+
+            CloudQueueMessage message = new CloudQueueMessage($"A new photo was uploaded and analyzed(Description: {model.Description}. Uri: {model.Uri}).");
+            queue.AddMessage(message);
+        }
+
+        //TODO: Move it to separate service
         private TableResult SaveData(PhotoAnalysisResult model) {
             CloudTable table = _tableClient.GetTableReference("photoInfo");
             table.CreateIfNotExists();
