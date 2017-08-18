@@ -3,13 +3,14 @@ using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using TestPhotoUploader.Models;
 
 namespace TestPhotoUploader.Controllers
 {
@@ -17,27 +18,26 @@ namespace TestPhotoUploader.Controllers
     {
         private CloudBlobClient _blobClient = null;
         private VisionServiceClient _visionClient = null;
+        private CloudTableClient _tableClient = null;
 
         public PhotoController()
         {
             string storageConnectionString = CloudConfigurationManager.GetSetting("StorageConnectionString");
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             _blobClient = storageAccount.CreateCloudBlobClient();
+            _tableClient = storageAccount.CreateCloudTableClient();
 
             string visionAPIKey = CloudConfigurationManager.GetSetting("VisionAPIKey");
             _visionClient = new VisionServiceClient(visionAPIKey, "https://westeurope.api.cognitive.microsoft.com/vision/v1.0");
         }
 
         // GET: Photo
-        public ActionResult Index(string message)
-        {
-            return View(message);
-        }
+        public ActionResult Index(PhotoAnalysisResult model = null) => View(model);
 
         [HttpPost]
         public async Task<ActionResult> Upload(HttpPostedFileBase photo)
         {
-            string message = "File is empty.";
+            PhotoAnalysisResult model = null;
             if (photo != null && photo.ContentLength > 0)
             {
                 try
@@ -54,17 +54,31 @@ namespace TestPhotoUploader.Controllers
 
                         var result = analysisTask.Result;
                         //TODO: Implement ToString and saving results. Add a separate model
-                        message = $"Photo {blobTask.Result.Name} was uploaded. " +
-                            $"Description: {string.Join(",", result.Description.Captions.Select(x => x.Text))}";
+                        model = new PhotoAnalysisResult(result, blobTask.Result);
+
+                        SaveData(model);
                     }
                 }
                 catch (Exception ex)
                 {
-                    message = ex.Message;
+                    ViewBag.Exception = ex.Message;
                 }
             }
+            else
+            {
+                ViewBag.Exception = "File is empty.";
+            }
 
-            return View(nameof(Index), model: message);
+            return View(nameof(Index), model);
+        }
+
+        private TableResult SaveData(PhotoAnalysisResult model) {
+            CloudTable table = _tableClient.GetTableReference("photoInfo");
+            table.CreateIfNotExists();
+            var per = table.GetPermissions();
+            TableOperation insertOperation = TableOperation.Insert(model);
+
+            return table.Execute(insertOperation);
         }
 
         //TODO: Move it to separate service

@@ -1,13 +1,15 @@
-﻿@model string
+﻿@model TestPhotoUploader.Models.PhotoAnalysisResult
 @{
     ViewBag.Title = "Upload";
 }
 
 <h2>Upload</h2>
 
-@if (!string.IsNullOrWhiteSpace(Model))
+@Html.DisplayForModel()
+
+@if (ViewBag.Exception != null)
 {
-    <div class="alert alert-info" role="alert">@Model</div>
+    <div class="alert alert-danger" role="alert">@ViewBag.Exception</div>
     <hr />
 }
 

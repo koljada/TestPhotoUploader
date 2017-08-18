@@ -1,0 +1,12 @@
+﻿@model TestPhotoUploader.Models.PhotoAnalysisResult
+
+@if (Model != null && Model.Name != null)
+{
+    <div class="alert alert-success" role="alert">
+        <p>Name: @Model.Name</p>
+        <p>Description: @Model.Description</p>
+        <p>Color: @Model.AccentColor</p>
+        <p>Main tag: @Model.Tag1</p>
+    </div>
+    <hr />
+}
