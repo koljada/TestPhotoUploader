@@ -1,0 +1,23 @@
+﻿@model string
+@{
+    ViewBag.Title = "Upload";
+}
+
+<h2>Upload</h2>
+
+@if (!string.IsNullOrWhiteSpace(Model))
+{
+    <div class="alert alert-info" role="alert">@Model</div>
+    <hr />
+}
+
+<div class="jumbotron">
+    @using (Html.BeginForm("Upload", "Photo", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="form-group">
+            <label for="photo">File input</label>
+            <input type="file" name="photo" />
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+    }
+</div>
