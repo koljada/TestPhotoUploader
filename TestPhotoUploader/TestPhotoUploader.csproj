@@ -27,6 +27,7 @@
     </NuGetPackageImportStamp>
     <ApplicationInsightsResourceId>/subscriptions/78232079-c210-40d7-ad54-4324c7d2eb77/resourcegroups/Default-ApplicationInsights-EastUS/providers/microsoft.insights/components/TestPhotoUploader</ApplicationInsightsResourceId>
     <ApplicationInsightsAnnotationResourceId>/subscriptions/78232079-c210-40d7-ad54-4324c7d2eb77/resourcegroups/Default-ApplicationInsights-EastUS/providers/microsoft.insights/components/TestPhotoUploader</ApplicationInsightsAnnotationResourceId>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -247,8 +248,9 @@
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Photo\Index.cshtml" />
+    <Content Include="Views\Photo\Upload.cshtml" />
     <Content Include="Views\Photo\DisplayTemplates\PhotoAnalysisResult.cshtml" />
+    <Content Include="Views\Photo\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

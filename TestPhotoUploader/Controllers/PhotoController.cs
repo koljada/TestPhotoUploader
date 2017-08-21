@@ -8,6 +8,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -35,12 +36,21 @@ namespace TestPhotoUploader.Controllers
         }
 
         // GET: Photo
-        public ActionResult Index(PhotoAnalysisResult model = null) => View(model);
+        public ActionResult Index()
+        {
+            CloudTable table = _tableClient.GetTableReference("photoInfo");
+            table.CreateIfNotExists();
+
+            TableQuery<PhotoAnalysisResult> query = new TableQuery<PhotoAnalysisResult>().Take(10);
+            var photos = table.ExecuteQuery(query).OrderByDescending(x => x.Timestamp);
+            return View(photos);
+        }
+
+        public ActionResult Upload() => View();
 
         [HttpPost]
         public async Task<ActionResult> Upload(HttpPostedFileBase photo)
         {
-            PhotoAnalysisResult model = null;
             if (photo != null && photo.ContentLength > 0)
             {
                 try
@@ -56,8 +66,8 @@ namespace TestPhotoUploader.Controllers
                         await Task.WhenAll(blobTask, analysisTask);
 
                         var result = analysisTask.Result;
-                       
-                        model = new PhotoAnalysisResult(result, blobTask.Result);
+
+                        var model = new PhotoAnalysisResult(result, blobTask.Result);
 
                         SaveData(model);
 
@@ -66,15 +76,15 @@ namespace TestPhotoUploader.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ViewBag.Exception = ex.Message;
+                    return View(ex.Message);
                 }
             }
             else
             {
-                ViewBag.Exception = "File is empty.";
+                return View("File is empty.");
             }
 
-            return View(nameof(Index), model);
+            return RedirectToAction(nameof(Index));
         }
 
         //TODO: Move it to separate service
@@ -88,10 +98,10 @@ namespace TestPhotoUploader.Controllers
         }
 
         //TODO: Move it to separate service
-        private TableResult SaveData(PhotoAnalysisResult model) {
+        private TableResult SaveData(PhotoAnalysisResult model)
+        {
             CloudTable table = _tableClient.GetTableReference("photoInfo");
             table.CreateIfNotExists();
-            var per = table.GetPermissions();
             TableOperation insertOperation = TableOperation.Insert(model);
 
             return table.Execute(insertOperation);
@@ -118,6 +128,8 @@ namespace TestPhotoUploader.Controllers
         //TODO: Move it to separate service
         private async Task<CloudBlockBlob> UploadPhotoAsync(HttpPostedFileBase photo)
         {
+            photo.InputStream.Seek(0, SeekOrigin.Begin);
+
             CloudBlobContainer container = _blobClient.GetContainerReference("test-photo-analyzing");
             container.CreateIfNotExists();
 

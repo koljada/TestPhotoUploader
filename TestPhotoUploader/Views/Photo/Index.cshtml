@@ -1,25 +1,35 @@
-﻿@model TestPhotoUploader.Models.PhotoAnalysisResult
+﻿@model IEnumerable<TestPhotoUploader.Models.PhotoAnalysisResult>
 @{
-    ViewBag.Title = "Upload";
+    ViewBag.Title = "Photos";
 }
 
-<h2>Upload</h2>
+<h2>Photos</h2>
 
-@Html.DisplayForModel()
+<h2><a class="btn btn-primary" href="@Url.Action("Upload")">Upload</a></h2>
 
-@if (ViewBag.Exception != null)
-{
-    <div class="alert alert-danger" role="alert">@ViewBag.Exception</div>
-    <hr />
-}
-
-<div class="jumbotron">
-    @using (Html.BeginForm("Upload", "Photo", FormMethod.Post, new { enctype = "multipart/form-data" }))
-    {
-        <div class="form-group">
-            <label for="photo">File input</label>
-            <input type="file" name="photo" />
-        </div>
-        <button type="submit" class="btn btn-success">Submit</button>
-    }
+<div class="list">
+    <table class="table table-bordered table-striped table-hover">
+        @*<caption>Last photos</caption>*@
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Photo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var photo in Model)
+            {
+                <tr>
+                    <td>@photo.Timestamp.ToString("dd-MM-yyyy hh:mm")</td>
+                    <td>@photo.Description</td>
+                    <td>
+                        <a href="@photo.Uri">
+                            <img class="img-responsive" src="@photo.Uri" alt="@photo.Tag1" style="max-width:100px; max-height:100px;"/>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>
