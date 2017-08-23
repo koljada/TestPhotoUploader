@@ -40,7 +40,7 @@ namespace TestPhotoUploader.Models
                 if (tags.Count > 1)
                     Tag2 = tags[1].Name;
                 if (tags.Count > 2)
-                    Tag3 = tags[3].Name;
+                    Tag3 = tags[2].Name;
                 if (tags.Count > 3)
                     Tag4 = tags[3].Name;
                 if (tags.Count > 4)

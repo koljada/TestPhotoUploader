@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.Storage.Table;
-using Newtonsoft.Json;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using TestPhotoUploader.Services.Interfaces;
 
@@ -32,6 +32,6 @@ namespace TestPhotoUploader.Services.Implemntations
             return _serviceBusClient.SendAsync(message);
         }
 
-        private BrokeredMessage GetMessage(T entity) => new BrokeredMessage(JsonConvert.SerializeObject(entity));
+        private BrokeredMessage GetMessage(T entity) => new BrokeredMessage(entity, new DataContractSerializer(typeof(T)));
     }
 }

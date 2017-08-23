@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPhotoUploader", "TestPhotoUploader\TestPhotoUploader.csproj", "{7F36B54B-5F52-4508-ACE6-AB681FAF68EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionDemoApp", "FunctionDemoApp\FunctionDemoApp.csproj", "{F0691A7D-F291-4B68-8685-4B4F21515CED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunctionDemoApp", "FunctionDemoApp\FunctionDemoApp.csproj", "{F0691A7D-F291-4B68-8685-4B4F21515CED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusListener", "ServiceBusListener\ServiceBusListener.csproj", "{69FDED76-3011-4471-AF85-67EE5350E487}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{F0691A7D-F291-4B68-8685-4B4F21515CED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0691A7D-F291-4B68-8685-4B4F21515CED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0691A7D-F291-4B68-8685-4B4F21515CED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69FDED76-3011-4471-AF85-67EE5350E487}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69FDED76-3011-4471-AF85-67EE5350E487}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69FDED76-3011-4471-AF85-67EE5350E487}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69FDED76-3011-4471-AF85-67EE5350E487}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
