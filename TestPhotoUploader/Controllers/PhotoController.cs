@@ -1,10 +1,12 @@
 ﻿using Microsoft.Azure;
 using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
+using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,10 +20,11 @@ namespace TestPhotoUploader.Controllers
 {
     public class PhotoController : Controller
     {
-        private CloudBlobClient _blobClient = null;
-        private VisionServiceClient _visionClient = null;
-        private CloudTableClient _tableClient = null;
-        private CloudQueueClient _queueClient = null;
+        private readonly CloudBlobClient _blobClient = null;
+        private readonly VisionServiceClient _visionClient = null;
+        private readonly CloudTableClient _tableClient = null;
+        private readonly CloudQueueClient _queueClient = null;
+        private readonly QueueClient _serviceBusClient = null;
 
         public PhotoController()
         {
@@ -33,6 +36,9 @@ namespace TestPhotoUploader.Controllers
 
             string visionAPIKey = CloudConfigurationManager.GetSetting("VisionAPIKey");
             _visionClient = new VisionServiceClient(visionAPIKey, "https://westeurope.api.cognitive.microsoft.com/vision/v1.0");
+
+            string serviceBusConnectionString = CloudConfigurationManager.GetSetting("ServiceBusConnectionString");
+            _serviceBusClient = QueueClient.CreateFromConnectionString(serviceBusConnectionString, "photoanalyzingresults");
         }
 
         // GET: Photo
@@ -72,19 +78,28 @@ namespace TestPhotoUploader.Controllers
                         SaveData(model);
 
                         SendMessage(model);
+
+                        SendMessageToBus(model);
                     }
                 }
                 catch (Exception ex)
                 {
-                    return View(ex.Message);
+                    return View(model: ex.Message);
                 }
             }
             else
             {
-                return View("File is empty.");
+                return View(model: "File is empty.");
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        //TODO: Move it to separate service
+        private void SendMessageToBus(PhotoAnalysisResult model) {
+            var str = JsonConvert.SerializeObject(model);
+            var message = new BrokeredMessage(str);
+            _serviceBusClient.Send(message);
         }
 
         //TODO: Move it to separate service
